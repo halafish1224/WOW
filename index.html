@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聖誕精靈快閃日短影片企劃</title>
+    <style>
+        body {
+            font-family: '微軟正黑體', 'Microsoft JhengHei', sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            border: 5px solid #d44; /* Christmas border */
+            box-sizing: border-box;
+        }
+        .container::before, .container::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-repeat: no-repeat;
+            background-size: contain;
+            opacity: 0.8;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .container::before {
+            top: -30px;
+            left: -30px;
+            background-image: url('https://i.imgur.com/K5fB8yB.png'); /* Holly top-left */
+        }
+        .container::after {
+            bottom: -30px;
+            right: -30px;
+            background-image: url('https://i.imgur.com/K5fB8yB.png'); /* Holly bottom-right */
+            transform: rotate(180deg);
+        }
+
+        h1 {
+            color: #c00;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #080;
+            border-bottom: 3px solid #080;
+            padding-bottom: 10px;
+            margin-top: 40px;
+            font-size: 1.8em;
+        }
+        h3 {
+            color: #d44;
+            font-size: 1.4em;
+            margin-top: 25px;
+            border-left: 5px solid #d44;
+            padding-left: 10px;
+        }
+        p, ul, li {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 8px;
+        }
+        li::before {
+            content: '🎄'; /* Christmas bullet */
+            position: absolute;
+            left: 0;
+            color: #080;
+        }
+        .note {
+            background-color: #ffe;
+            border-left: 5px solid #f90;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            color: #660;
+        }
+        .section-box {
+            background-color: #fdfdfd;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .highlight {
+            color: #c00;
+            font-weight: bold;
+        }
+        .code-block {
+            background-color: #eee;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-size: 0.9em;
+        }
+        .button {
+            display: inline-block;
+            background-color: #0a0;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #070;
+        }
+        .faqs {
+            margin-top: 40px;
+            border-top: 1px dashed #ccc;
+            padding-top: 20px;
+        }
+        .faq-item {
+            margin-bottom: 15px;
+        }
+        .faq-question {
+            font-weight: bold;
+            color: #d44;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faq-question span {
+            font-size: 1.2em;
+        }
+        .faq-answer {
+            background-color: #f0fdf0;
+            border-left: 3px solid #0a0;
+            padding: 10px 15px;
+            margin-top: 5px;
+            border-radius: 0 5px 5px 0;
+            display: none; /* Hidden by default */
+        }
+        .faq-item.open .faq-answer {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>《聖誕精靈快閃日》短影片企劃書</h1>
+
+        <p>此文件為「聖誕精靈快閃日」活動的 30-50 秒短影片企劃，結合原有內容與優化建議，方便您在網頁上預覽與操作。</p>
+
+        <h2>🚀 影片概覽</h2>
+        <div class="section-box">
+            <ul>
+                <li><strong>影片時長：</strong> 30 - 50 秒</li>
+                <li><strong>目標受眾：</strong> 3-12 歲兒童家長、對聖誕活動感興趣的家庭</li>
+                <li><strong>主要目的：</strong> 快速傳達活動玩法、激發參與慾望</li>
+                <li><strong>製作工具：</strong> MAC Final Cut Pro (FCP)</li>
+                <li><strong>素材來源：</strong> Freepik (圖庫與動態素材), 園區內部素材</li>
+            </ul>
+        </div>
+
+        <h2>💡 優化建議 (Highlights)</h2>
+        <div class="section-box">
+            <ul>
+                <li><span class="highlight">開場魔法引入：</span> 除了雪花，加入光點或星光匯聚成標題的動畫，文字彈跳帶有「回彈」效果。</li>
+                <li><span class="highlight">精靈變身互動：</span> 小朋友圖像從普通服裝「變身」成聖誕精靈裝扮，強調趣味性。</li>
+                <li><span class="highlight">地圖路徑引導：</span> 關卡介紹時，背景顯示簡化地圖，用發光路線引導至各關卡與隊長位置。</li>
+                <li><span class="highlight">爆米花視覺衝擊：</span> 爆米花從下方「冒出」或「爆炸式」充滿畫面，字幕「限量」輕微閃爍。</li>
+                <li><span class="highlight">Call to Action強化：</span> 「指定日期」以翻牌或聖誕燈串亮起方式逐一顯示，增加緊迫感。</li>
+                <li><span class="highlight">音效搭配：</span> 在關鍵轉場和互動處加入輕巧音效（魔法音、蓋章聲、爆米花聲等）。</li>
+            </ul>
+        </div>
+
+        <h2>🎬 影片分段企劃與操作細節</h2>
+
+        <h3>① 開場 3–5 秒｜魔法引入</h3>
+        <div class="section-box">
+            <p><strong>畫面：</strong></p>
+            <ul>
+                <li>樂園冬日氛圍、雪花飄落 (<span class="code-block">Freepik 動態雪花</span>)。</li>
+                <li><span class="highlight">【優化】光點或星光從畫面角落匯聚成標題。</span></li>
+                <li>聖誕色字卡彈跳出場，<span class="highlight">帶有輕微「晃動」或「縮放回彈」效果。</span></li>
+            </ul>
+            <p><strong>字幕：</strong></p>
+            <ul>
+                <li>《聖誕精靈快閃日》開啟！</li>
+                <li>Facebook 粉絲限定・聖誕專屬任務 🎄✨</li>
+            </ul>
+            <p class="note">FCP操作提示：使用 <span class="code-block">"Build In / Build Out"</span> 或 <span class="code-block">Pop-Up</span> 動畫，雪花用 <span class="code-block">"Blend Mode: Screen"</span> 疊加，強度 30-60%。</p>
+        </div>
+
+        <h3>② 條件說明 5–8 秒｜小朋友變身精靈</h3>
+        <div class="section-box">
+            <p><strong>畫面：</strong></p>
+            <ul>
+                <li>孩子們穿 <span class="highlight">粉/紅/綠/白各色上衣 + 戴聖誕帽</span> 的可愛 B-roll (可用 Freepik、或園區素材)。</li>
+                <li><span class="highlight">【優化】小朋友圖像從普通衣著「變身」成聖誕精靈裝扮。</span></li>
+            </ul>
+            <p><strong>字幕：</strong></p>
+            <ul>
+                <li>只要穿上聖誕色上衣</li>
+                <li>加上可愛聖誕帽 🎅🎄</li>
+                <li>3–12 歲小朋友就能變身「聖誕精靈」！</li>
+            </ul>
+            <p class="note">FCP操作提示：變身效果可透過 <span class="code-block">疊加素材、調整透明度或快速轉場</span> 實現。</p>
+        </div>
+
+        <h3>③ 任務介紹 15–20 秒｜三大關卡分別呈現</h3>
+        <div class="section-box">
+            <p><strong>呈現方式：</strong></p>
+            <ul>
+                <li>3個場景用「滑動／縮放／轉場 Wipe」方式呈現，節奏明快可愛。</li>
+                <li><span class="highlight">【優化】背景疊加簡化園區地圖剪影，用發光路線引導至關卡與隊長位置。</span></li>
+            </ul>
+            <p><strong>關卡一：幸福廣場 → 禮物印記</strong></p>
+            <ul>
+                <li>Freepik 關鍵字：<span class="code-block">gift, christmas gift, christmas ribbon, cozy square</span></li>
+                <li>字幕：
+                    <ul>
+                        <li>到「幸福廣場」拍照</li>
+                        <li>找入口服務台 → 領取【禮物印記】🎁</li>
+                    </ul>
+                </li>
+            </ul>
+            <p><strong>關卡二：飛越凱旋門 → 麋鹿印記</strong></p>
+            <ul>
+                <li>Freepik 關鍵字：<span class="code-block">reindeer, christmas deer, arch, holiday landmark</span></li>
+                <li>字幕：
+                    <ul>
+                        <li>到「飛越凱旋門」拍照</li>
+                        <li>找埃及館 → 領取【麋鹿印記】🦌</li>
+                    </ul>
+                </li>
+            </ul>
+            <p><strong>關卡三：聖誕許願樹 → 聖誕樹印記</strong></p>
+            <ul>
+                <li>Freepik 關鍵字：<span class="code-block">christmas tree, glowing tree, holiday forest, kids wonder</span></li>
+                <li>字幕：
+                    <ul>
+                        <li>到「聖誕許願樹」拍照</li>
+                        <li>找室內樂園服務台 → 領取【聖誕樹印記】🎄</li>
+                    </ul>
+                </li>
+            </ul>
+            <p class="note">FCP操作提示：地圖路線動畫可使用 <span class="code-block">Draw Mask 或 Shape Mask</span>，配合 <span class="code-block">Glow</span> 特效。</p>
+        </div>
+
+        <h3>④ 兌換流程 5–7 秒｜爆米花亮點</h3>
+        <div class="section-box">
+            <p><strong>畫面：</strong></p>
+            <ul>
+                <li>繽紛爆米花特寫（彩色甜甜風）＋ 孩子開心的反應。</li>
+                <li><span class="highlight">【優化】爆米花從畫面下方「冒出」或「爆炸式」充滿畫面。</span></li>
+            </ul>
+            <p><strong>字幕：</strong></p>
+            <ul>
+                <li>蒐集三個印記</li>
+                <li>就能兌換「繽紛爆米花」🍿💛</li>
+                <li><span class="highlight">每日限量・送完為止！ (文字帶輕微「警示」動畫)</span></li>
+            </ul>
+            <p class="note">FCP操作提示：爆米花出現可搭配 <span class="code-block">Ken Burns效果或粒子特效</span>。文字動畫可透過 <span class="code-block">Keyframes</span> 實現閃爍或邊框變色。</p>
+        </div>
+
+        <h3>⑤ 收尾 5–7 秒｜行動呼籲 Call to Action</h3>
+        <div class="section-box">
+            <p><strong>畫面：</strong></p>
+            <ul>
+                <li>小朋友拿著集章卡跳躍／轉圈／樂園雪花特效。</li>
+                <li><span class="highlight">【優化】Freepik 樂園氛圍素材可加，增加整體魔幻感。</span></li>
+            </ul>
+            <p><strong>字幕：</strong></p>
+            <ul>
+                <li>聖誕專屬任務</li>
+                <li>等你一起變身聖誕精靈！</li>
+                <li><span class="highlight">指定日期限定🎅✨ (日期以翻牌/燈串亮起方式逐一顯示)</span></li>
+            </ul>
+            <p><strong>下方小字：</strong></p>
+            <ul>
+                <li>「詳情請見小人國官方粉絲團」<span class="highlight"> (可搭配簡潔的粉絲團Logo)</span></li>
+            </ul>
+            <p class="note">FCP操作提示：文本動畫預設或使用 <span class="code-block">Keyframes</span> 控制。結束畫面可加入輕微 <span class="code-block">Glow</span> 特效，亮度 0.2-0.5，增加魔法感。</p>
+        </div>
+
+        <h2>🎧 音樂與音效建議</h2>
+        <div class="section-box">
+            <p><strong>背景音樂：</strong></p>
+            <ul>
+                <li>選擇溫暖輕快的聖誕莊園音樂。</li>
+                <li>Freepik 搜尋關鍵字：<span class="code-block">christmas magic, holiday cheerful, kids christmas upbeat, christmas jingles light</span></li>
+            </ul>
+            <p><strong>音效 (【優化】額外添加)：</strong></p>
+            <ul>
+                <li>魔法開啟/雪花飄落：<span class="code-block">magic chimes, sparkle sound</span></li>
+                <li>小朋友變身：<span class="code-block">whoosh sound, fairy dust sound</span></li>
+                <li>印章蓋下：<span class="code-block">stamp sound, chime effect</span></li>
+                <li>爆米花出現：<span class="code-block">pop sound, confetti sound</span></li>
+            </ul>
+        </div>
+
+        <h2>📦 Freepik 搜尋詞總整合</h2>
+        <div class="section-box">
+            <p><strong>人物 / 氛圍：</strong></p>
+            <ul>
+                <li><span class="code-block">kids christmas costume, cute kids winter, family christmas fun, children dressed as elves</span></li>
+            </ul>
+            <p><strong>場景 / 裝飾：</strong></p>
+            <ul>
+                <li><span class="code-block">christmas square, christmas arch, holiday gate, christmas tree glowing, santa hat kid</span></li>
+            </ul>
+            <p><strong>特效 / 動畫：</strong></p>
+            <ul>
+                <li><span class="code-block">snow overlay, sparkle dust, christmas bokeh, christmas frame, magic sparkles animation, christmas light animation, cartoon christmas map, glowing path animation, christmas calendar icon, facebook logo icon</span></li>
+            </ul>
+            <p><strong>音效 (如Freepik有提供)：</strong></p>
+            <ul>
+                <li><span class="code-block">magic chimes, sparkle sound, whoosh sound, fairy dust sound, stamp sound, chime effect, pop sound, confetti sound</span></li>
+            </ul>
+        </div>
+
+        <div class="faqs">
+            <h2>❓ 常見問題與操作提示</h2>
+            <div class="faq-item">
+                <div class="faq-question">如何在FCP中為文本添加回彈效果？<span>+</span></div>
+                <div class="faq-answer">
+                    您可以在 FCP 中選擇文本，然後在右側的「檢視器」中找到「文本」選項卡。在「發佈/消失」選項中，嘗試不同的預設動畫，或手動調整「位置」和「縮放」的關鍵幀，使其在結束時有一個小小的回彈。也可以在「效果」中搜尋「彈性」相關的濾鏡。
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">如何製作地圖路線的發光動畫？<span>+</span></div>
+                <div class="faq-answer">
+                    將簡化地圖作為背景，在上方新建一個「形狀」或「繪圖遮罩」（Draw Mask）。沿著您想顯示的路徑繪製線條，然後使用「描邊」（Stroke）效果，並調整其「起始偏移」和「結束偏移」來創建繪製動畫。再添加「輝光」（Glow）效果，讓線條發光。
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">如何讓「指定日期」以翻牌或燈串方式亮起？<span>+</span></div>
+                <div class="faq-answer">
+                    您可以將每個日期作為獨立的文本層，然後對每個文本層應用不同的「發佈/消失」動畫，例如「翻轉」或「掃描」。或者，如果您有能力使用 Motion 製作模板，可以自定義一個燈串亮起的效果。
+                </div>
+            </div>
+        </div>
+        
+        <p style="text-align: center; margin-top: 50px; font-style: italic;">希望這份企劃能幫助您製作出一個充滿魔法和節慶氛圍的短影片！</p>
+    </div>
+
+    <script>
+        document.querySelectorAll('.faq-question').forEach(item => {
+            item.addEventListener('click', event => {
+                const faqItem = item.closest('.faq-item');
+                faqItem.classList.toggle('open');
+                item.querySelector('span').textContent = faqItem.classList.contains('open') ? '−' : '+';
+            });
+        });
+    </script>
+</body>
+</html>
