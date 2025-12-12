@@ -999,32 +999,33 @@
     // 固定尺寸呈現；contain 模式不裁切（依 li 的 data-fit）
     photoBox.classList.toggle('is-contain', fit === 'contain');
 
-    // 音訊（可選）
-    const NO_AUDIO = new Set(["東大寺", "佛國寺", "韓國演慶堂", "姬路城", "巴黎歌劇院", "聖巴西爾大教堂", "伏姆斯教堂", "沙特爾大教堂", "里拉修道院", "勒梭羅雷特修道院", "比薩斜塔", "希臘衛城", "廊香教堂", "自由女神像", "古根漢美術館", "萊特工作室", "白宮", "庫庫爾康金字塔", "美國太空梭", "四大總統像"]);
-    const audioSrc = (audio || '').trim();
-    const forceNoAudio = NO_AUDIO.has((name || '').trim());
-
-    // 先重置（避免前一個展件殘留）
-    try{ audioEl.pause(); }catch(_e){}
+    // 音訊（可選）：先重置，避免上一個展件殘留狀態
+    try{ audioEl.pause(); }catch(_){}
+    try{ audioEl.currentTime = 0; }catch(_){}
     audioEl.removeAttribute('src');
-    audioEl.load();
-    audioBtn.hidden = true;
-    progBox.hidden  = true;
-    audioBtn.setAttribute('aria-disabled','true');
+    // iOS/Safari 有時需要 load() 立即清掉舊資源
+    try{ audioEl.load && audioEl.load(); }catch(_){}
 
-    // 只有在「有音檔」且不在 no-audio 清單時才顯示控制
-    if(audioSrc && !forceNoAudio){
-      audioEl.src = audioSrc;
+    const forceNoAudio = (typeof FORCE_NO_AUDIO !== 'undefined') && FORCE_NO_AUDIO.has(name);
+    if(!forceNoAudio && audio){
+      audioEl.src = audio;
       audioBtn.hidden = false;
       progBox.hidden  = false;
-      audioBtn.setAttribute('aria-disabled','false');
-      audioBtn.textContent = '▶ 播放語音';
-      // 進度 UI 初始值
-      userScrubbing = false;
-      seekEl.max = 0;
-      seekEl.value = 0;
-      timeLbl.textContent = '00:00 / 00:00';
+    }else{
+      audioBtn.hidden = true;
+      progBox.hidden  = true;
     }
+
+    // 重置進度
+
+    if (!audioBtn.hidden){ seekEl.value = 0; seekEl.max = 0; updateTimeUI(); }
+
+    // 顯示
+    modal.classList.add('is-open');
+    backdrop.classList.add('is-open');
+    document.documentElement.classList.add('is-modal-open');
+    document.body.classList.add('is-modal-open');
+    closeBtn.focus();
 
     // 焦點陷阱 + ESC
     trapHandler = (e)=>{
@@ -1079,24 +1080,54 @@
   seekEl.addEventListener('change', ()=>{ const v=Number(seekEl.value); if(isFinite(v)) audioEl.currentTime = v; userScrubbing=false; });
   seekEl.addEventListener('pointerup', ()=>{ userScrubbing=false; });
 
-  // 把含 data-* 的 li 保留原內容，改成「點項目就開彈窗」（不重寫 DOM，避免按鈕/縮圖消失）
-  // 若點到 <a href> 等連結，保留其原本行為不攔截。
-  scope.addEventListener('click', (e)=>{
-    const link = e.target.closest('a[href]');
-    if(link) return;
+  // 指定「無語音」景點：彈窗內一律不顯示播放控制（即使誤帶 data-audio 也不顯示）
+  const FORCE_NO_AUDIO = new Set([
+    '東大寺','佛國寺','韓國演慶堂','姬路城','巴黎歌劇院','聖巴西爾大教堂','伏姆斯教堂','沙特爾大教堂',
+    '里拉修道院','勒梭羅雷特修道院','比薩斜塔','希臘衛城','廊香教堂','自由女神像','古根漢美術館',
+    '萊特工作室','白宮','庫庫爾康金字塔','美國太空梭','四大總統像'
+  ]);
+  // 讓景點項目可用滑鼠/鍵盤操作
+  scope.querySelectorAll('.wow-mini-sights li[data-name]').forEach(function(li){
+    if(!li.hasAttribute('tabindex')) li.setAttribute('tabindex','0');
+    if(!li.hasAttribute('role')) li.setAttribute('role','button');
+    li.classList.add('is-clickable');
+  });
 
+
+  // —— 事件委派：點 li 直接打開彈窗（不改寫 DOM，避免破壞原本結構）——
+  function isInteractive(el){
+    return !!(el && el.closest && el.closest('a,button,input,select,textarea,label,summary,[role="button"],[role="link"]'));
+  }
+
+  scope.addEventListener('click', (e)=>{
+    // 若點到本身就是互動元件（例如 li 裡的 a/button），交給原本行為；除非那個元件就是整顆景點按鈕
     const li = e.target.closest('.wow-mini-sights li[data-name]');
-    if(!li || !scope.contains(li)) return;
+    if(!li) return;
+
+    // 如果點到的是 li 內部的其他互動元件，但不是 li 自身，避免搶走點擊
+    if(isInteractive(e.target) && !e.target.closest('.wow-mini-sights li[data-name]')) return;
+
+    const name = (li.dataset.name || li.textContent || '').trim();
+    if(!name) return;
 
     openModal({
-      name : (li.dataset.name  || '').trim(),
-      img  : (li.dataset.img   || '').trim(),
-      intro: (li.dataset.intro || '').trim(),
-      audio: (li.dataset.audio || '').trim(),
-      fit  : (li.dataset.fit   || '').trim() // 可用 data-fit="contain"
+      name : name,
+      img  : li.dataset.img   || '',
+      intro: li.dataset.intro || '',
+      audio: li.dataset.audio || '',
+      fit  : li.dataset.fit   || '' // 可用 data-fit="contain"
     });
   });
 
+  // 鍵盤可用（Enter/Space 開啟）
+  scope.addEventListener('keydown', (e)=>{
+    if(!(e.key === 'Enter' || e.key === ' ')) return;
+    const li = e.target.closest('.wow-mini-sights li[data-name]');
+    if(!li) return;
+    e.preventDefault();
+    li.click();
+  });
+  });
 
 })();
 </script>
