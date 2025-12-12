@@ -1079,35 +1079,24 @@
   seekEl.addEventListener('change', ()=>{ const v=Number(seekEl.value); if(isFinite(v)) audioEl.currentTime = v; userScrubbing=false; });
   seekEl.addEventListener('pointerup', ()=>{ userScrubbing=false; });
 
-  // 把含 data-* 的 li 包成按鈕（並加 .has-btn 備援）
-  const items = scope.querySelectorAll('.wow-mini-sights li[data-name]');
-  items.forEach(li=>{
-    if(!li.querySelector('button.mini-open')){
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'mini-open';
-      btn.innerHTML = li.innerHTML; // 保留 <b> 等標記
-      li.innerHTML = '';
-      li.appendChild(btn);
-    }
-    li.classList.add('has-btn');
-  });
-
-  // 委派事件：點按鈕打開彈窗
+  // 把含 data-* 的 li 保留原內容，改成「點項目就開彈窗」（不重寫 DOM，避免按鈕/縮圖消失）
+  // 若點到 <a href> 等連結，保留其原本行為不攔截。
   scope.addEventListener('click', (e)=>{
-    const btn = e.target.closest('button.mini-open');
-    if(!btn) return;
-    const li = btn.closest('li[data-name]');
-    if(!li) return;
+    const link = e.target.closest('a[href]');
+    if(link) return;
+
+    const li = e.target.closest('.wow-mini-sights li[data-name]');
+    if(!li || !scope.contains(li)) return;
 
     openModal({
-      name : li.dataset.name  || btn.textContent.trim(),
-      img  : li.dataset.img   || '',
-      intro: li.dataset.intro || '',
-      audio: li.dataset.audio || '',
-      fit  : li.dataset.fit   || '' // 可用 data-fit="contain"
+      name : (li.dataset.name  || '').trim(),
+      img  : (li.dataset.img   || '').trim(),
+      intro: (li.dataset.intro || '').trim(),
+      audio: (li.dataset.audio || '').trim(),
+      fit  : (li.dataset.fit   || '').trim() // 可用 data-fit="contain"
     });
   });
+
 
 })();
 </script>
