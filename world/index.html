@@ -977,6 +977,32 @@
     return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
   };
 
+  // 指定展件目前無語音：強制隱藏播放介面（避免誤顯示）
+  const normName = s => (s||'').replace(/\s+/g,'');
+  const NO_AUDIO = new Set([
+    '東大寺',
+    '佛國寺',
+    '韓國演慶堂',
+    '姬路城',
+    '巴黎歌劇院',
+    '聖巴西爾大教堂',
+    '伏姆斯教堂',
+    '沙特爾大教堂',
+    '里拉修道院',
+    '勒梭羅雷特修道院',
+    '比薩斜塔',
+    '希臘衛城',
+    '廊香教堂',
+    '自由女神像',
+    '古根漢美術館',
+    '萊特工作室',
+    '白宮',
+    '庫庫爾康金字塔',
+    '美國太空梭',
+    '四大總統像'
+  ].map(normName));
+
+
   function updateTimeUI(){
     if (!audioEl.src) return;
     const cur = userScrubbing ? Number(seekEl.value) : (audioEl.currentTime || 0);
@@ -991,27 +1017,44 @@
   function openModal({name, img, intro, audio, fit}){
     lastFocus = document.activeElement;
 
-    titleEl.textContent = name || '展件';
+    const displayName = (name || '').trim();
+    const nameKey = normName(displayName);
+
+    // 指定「無語音」展件：就算 data-audio 不小心帶到，也一律不顯示播放功能
+    if (NO_AUDIO.has(nameKey)) audio = '';
+
+    titleEl.textContent = displayName || '展件';
     imgEl.src = img || '';
-    imgEl.alt = name ? (name + ' 圖片') : '';
+    imgEl.alt = displayName ? (displayName + ' 圖片') : '';
     introEl.textContent = intro || '—';
 
     // 固定尺寸呈現；contain 模式不裁切（依 li 的 data-fit）
     photoBox.classList.toggle('is-contain', fit === 'contain');
+
+    // 每次開啟都先重置音訊狀態（避免上一筆展件的播放狀態殘留）
+    try{
+      if(!audioEl.paused) audioEl.pause();
+      audioEl.currentTime = 0;
+    }catch(e){}
+    audioBtn.textContent = '▶ 播放語音';
 
     // 音訊（可選）
     if(audio){
       audioEl.src = audio;
       audioBtn.hidden = false;
       progBox.hidden  = false;
+      seekEl.value = 0;
+      seekEl.max = 0;
+      updateTimeUI();
     }else{
       audioEl.removeAttribute('src');
+      try{ audioEl.load(); }catch(e){}
       audioBtn.hidden = true;
       progBox.hidden  = true;
+      seekEl.value = 0;
+      seekEl.max = 0;
+      timeLbl.textContent = '00:00 / 00:00';
     }
-
-    // 重置進度
-    if (!audioBtn.hidden){ seekEl.value = 0; seekEl.max = 0; updateTimeUI(); }
 
     // 顯示
     modal.classList.add('is-open');
