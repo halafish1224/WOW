@@ -899,7 +899,8 @@
 </section>
 </div>
 </main>
-<!-- ===== 單一份彈窗腳本（含保險絲與可近用） ===== --><script>
+<!-- ===== 單一份彈窗腳本（含保險絲與可近用） ===== -->
+<script>
 (function(){
   // 防重初始化
   if (window.__WOW_MINI_MODAL_INIT__) return;
@@ -910,7 +911,7 @@
 
   // 先清理殘留的舊 DOM
   document.querySelectorAll('.mini-modal, .mini-modal-backdrop').forEach(el=>el.remove());
-
+  
   // 建立 DOM
   const backdrop = document.createElement('div');
   backdrop.className = 'mini-modal-backdrop';
@@ -955,7 +956,7 @@
   document.body.appendChild(backdrop);
   document.body.appendChild(modal);
 
-  // 節點
+  // 節點選取
   const closeBtn = modal.querySelector('.mini-close');
   const photoBox = modal.querySelector('.mini-photo-box');
   const imgEl    = photoBox.querySelector('img');
@@ -970,13 +971,15 @@
   const timeLbl  = modal.querySelector('.mini-time');
 
   let lastFocus = null, trapHandler = null, userScrubbing = false;
-
+  
+  // 時間格式化工具
   const fmt = t => {
     if(!isFinite(t)) t = 0;
     const m = Math.floor(t/60), s = Math.floor(t%60);
     return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
   };
 
+  // 更新播放時間介面
   function updateTimeUI(){
     if (!audioEl.src) return;
     const cur = userScrubbing ? Number(seekEl.value) : (audioEl.currentTime || 0);
@@ -988,6 +991,7 @@
     }
   }
 
+  // 開啟彈窗
   function openModal({name, img, intro, audio, fit}){
     lastFocus = document.activeElement;
 
@@ -996,14 +1000,13 @@
     imgEl.alt = name ? (name + ' 圖片') : '';
     introEl.textContent = intro || '—';
 
-    // 固定尺寸呈現；contain 模式不裁切（依 li 的 data-fit）
+    // 固定尺寸呈現；contain 模式不裁切
     photoBox.classList.toggle('is-contain', fit === 'contain');
 
-    // 音訊（可選）：先重置，避免上一個展件殘留狀態
+    // 重置音訊
     try{ audioEl.pause(); }catch(_){}
     try{ audioEl.currentTime = 0; }catch(_){}
     audioEl.removeAttribute('src');
-    // iOS/Safari 有時需要 load() 立即清掉舊資源
     try{ audioEl.load && audioEl.load(); }catch(_){}
 
     const forceNoAudio = (typeof FORCE_NO_AUDIO !== 'undefined') && FORCE_NO_AUDIO.has(name);
@@ -1016,18 +1019,15 @@
       progBox.hidden  = true;
     }
 
-    // 重置進度
-
     if (!audioBtn.hidden){ seekEl.value = 0; seekEl.max = 0; updateTimeUI(); }
 
-    // 顯示
+    // 顯示與焦點陷阱
     modal.classList.add('is-open');
     backdrop.classList.add('is-open');
     document.documentElement.classList.add('is-modal-open');
     document.body.classList.add('is-modal-open');
     closeBtn.focus();
 
-    // 焦點陷阱 + ESC
     trapHandler = (e)=>{
       if(e.key === 'Tab'){
         const f = Array.from(modal.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])'))
@@ -1052,11 +1052,10 @@
     if(lastFocus) lastFocus.focus();
   }
 
-  // 綁定關閉
+  // 事件綁定：關閉與播放
   closeBtn.addEventListener('click', closeModal);
   backdrop.addEventListener('click', closeModal);
 
-  // 播放/暫停
   audioBtn.addEventListener('click', ()=>{
     if(!audioEl.src) return;
     if(audioEl.paused){
@@ -1067,25 +1066,23 @@
     }
   });
 
-  // 進度事件
   ['loadedmetadata','timeupdate','durationchange'].forEach(ev=>audioEl.addEventListener(ev, updateTimeUI));
   audioEl.addEventListener('ended', ()=>{ updateTimeUI(); audioBtn.textContent='▶ 播放語音'; });
 
-  // 快轉/倒退
   backBtn.addEventListener('click', ()=>{ if(isFinite(audioEl.currentTime)) audioEl.currentTime = Math.max(0, audioEl.currentTime - 10); });
   fwdBtn.addEventListener('click', ()=>{ if(isFinite(audioEl.currentTime) && isFinite(audioEl.duration)) audioEl.currentTime = Math.min(audioEl.duration, audioEl.currentTime + 10); });
-
-  // 拖曳
+  
   seekEl.addEventListener('input', ()=>{ userScrubbing = true; updateTimeUI(); });
   seekEl.addEventListener('change', ()=>{ const v=Number(seekEl.value); if(isFinite(v)) audioEl.currentTime = v; userScrubbing=false; });
   seekEl.addEventListener('pointerup', ()=>{ userScrubbing=false; });
 
-  // 指定「無語音」景點：彈窗內一律不顯示播放控制（即使誤帶 data-audio 也不顯示）
+  // 指定無語音清單
   const FORCE_NO_AUDIO = new Set([
     '東大寺','佛國寺','韓國演慶堂','姬路城','巴黎歌劇院','聖巴西爾大教堂','伏姆斯教堂','沙特爾大教堂',
     '里拉修道院','勒梭羅雷特修道院','比薩斜塔','希臘衛城','廊香教堂','自由女神像','古根漢美術館',
     '萊特工作室','白宮','庫庫爾康金字塔','美國太空梭','四大總統像'
   ]);
+
   // 讓景點項目可用滑鼠/鍵盤操作
   scope.querySelectorAll('.wow-mini-sights li[data-name]').forEach(function(li){
     if(!li.hasAttribute('tabindex')) li.setAttribute('tabindex','0');
@@ -1093,19 +1090,19 @@
     li.classList.add('is-clickable');
   });
 
-
-  // —— 事件委派：點 li 直接打開彈窗（不改寫 DOM，避免破壞原本結構）——
+  // —— 事件委派：核心修復點 ——
   function isInteractive(el){
     return !!(el && el.closest && el.closest('a,button,input,select,textarea,label,summary,[role="button"],[role="link"]'));
   }
 
   scope.addEventListener('click', (e)=>{
-    // 若點到本身就是互動元件（例如 li 裡的 a/button），交給原本行為；除非那個元件就是整顆景點按鈕
+    // 找出點擊的景點卡片 (li)
     const li = e.target.closest('.wow-mini-sights li[data-name]');
     if(!li) return;
 
-    // 如果點到的是 li 內部的其他互動元件，但不是 li 自身，避免搶走點擊
-    if(isInteractive(e.target) && !e.target.closest('.wow-mini-sights li[data-name]')) return;
+    // 若點擊的是卡片內的其他按鈕（非觸發彈窗用的按鈕），則不動作，避免誤觸
+    // 但如果那個按鈕本身就是觸發器（例如 button.mini-open），則應允許通過
+    if(isInteractive(e.target) && !e.target.classList.contains('mini-open') && !li.contains(e.target)) return;
 
     const name = (li.dataset.name || li.textContent || '').trim();
     if(!name) return;
@@ -1115,11 +1112,10 @@
       img  : li.dataset.img   || '',
       intro: li.dataset.intro || '',
       audio: li.dataset.audio || '',
-      fit  : li.dataset.fit   || '' // 可用 data-fit="contain"
+      fit  : li.dataset.fit   || ''
     });
   });
 
-  // 鍵盤可用（Enter/Space 開啟）
   scope.addEventListener('keydown', (e)=>{
     if(!(e.key === 'Enter' || e.key === ' ')) return;
     const li = e.target.closest('.wow-mini-sights li[data-name]');
@@ -1127,9 +1123,8 @@
     e.preventDefault();
     li.click();
   });
-  });
 
-})();
+})(); // <--- 這裡修正為 })(); 確保立即執行
 </script>
 <script>
 /*WOW_WEBP_EEDU_PREF*/
