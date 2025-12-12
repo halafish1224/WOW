@@ -977,32 +977,6 @@
     return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
   };
 
-  // 指定展件目前無語音：強制隱藏播放介面（避免誤顯示）
-  const normName = s => (s||'').replace(/\s+/g,'');
-  const NO_AUDIO = new Set([
-    '東大寺',
-    '佛國寺',
-    '韓國演慶堂',
-    '姬路城',
-    '巴黎歌劇院',
-    '聖巴西爾大教堂',
-    '伏姆斯教堂',
-    '沙特爾大教堂',
-    '里拉修道院',
-    '勒梭羅雷特修道院',
-    '比薩斜塔',
-    '希臘衛城',
-    '廊香教堂',
-    '自由女神像',
-    '古根漢美術館',
-    '萊特工作室',
-    '白宮',
-    '庫庫爾康金字塔',
-    '美國太空梭',
-    '四大總統像'
-  ].map(normName));
-
-
   function updateTimeUI(){
     if (!audioEl.src) return;
     const cur = userScrubbing ? Number(seekEl.value) : (audioEl.currentTime || 0);
@@ -1017,51 +991,40 @@
   function openModal({name, img, intro, audio, fit}){
     lastFocus = document.activeElement;
 
-    const displayName = (name || '').trim();
-    const nameKey = normName(displayName);
-
-    // 指定「無語音」展件：就算 data-audio 不小心帶到，也一律不顯示播放功能
-    if (NO_AUDIO.has(nameKey)) audio = '';
-
-    titleEl.textContent = displayName || '展件';
+    titleEl.textContent = name || '展件';
     imgEl.src = img || '';
-    imgEl.alt = displayName ? (displayName + ' 圖片') : '';
+    imgEl.alt = name ? (name + ' 圖片') : '';
     introEl.textContent = intro || '—';
 
     // 固定尺寸呈現；contain 模式不裁切（依 li 的 data-fit）
     photoBox.classList.toggle('is-contain', fit === 'contain');
 
-    // 每次開啟都先重置音訊狀態（避免上一筆展件的播放狀態殘留）
-    try{
-      if(!audioEl.paused) audioEl.pause();
-      audioEl.currentTime = 0;
-    }catch(e){}
-    audioBtn.textContent = '▶ 播放語音';
-
     // 音訊（可選）
-    if(audio){
-      audioEl.src = audio;
+    const NO_AUDIO = new Set(["東大寺", "佛國寺", "韓國演慶堂", "姬路城", "巴黎歌劇院", "聖巴西爾大教堂", "伏姆斯教堂", "沙特爾大教堂", "里拉修道院", "勒梭羅雷特修道院", "比薩斜塔", "希臘衛城", "廊香教堂", "自由女神像", "古根漢美術館", "萊特工作室", "白宮", "庫庫爾康金字塔", "美國太空梭", "四大總統像"]);
+    const audioSrc = (audio || '').trim();
+    const forceNoAudio = NO_AUDIO.has((name || '').trim());
+
+    // 先重置（避免前一個展件殘留）
+    try{ audioEl.pause(); }catch(_e){}
+    audioEl.removeAttribute('src');
+    audioEl.load();
+    audioBtn.hidden = true;
+    progBox.hidden  = true;
+    audioBtn.setAttribute('aria-disabled','true');
+
+    // 只有在「有音檔」且不在 no-audio 清單時才顯示控制
+    if(audioSrc && !forceNoAudio){
+      audioEl.src = audioSrc;
       audioBtn.hidden = false;
       progBox.hidden  = false;
-      seekEl.value = 0;
+      audioBtn.setAttribute('aria-disabled','false');
+      audioBtn.textContent = '▶ 播放語音';
+      // 進度 UI 初始值
+      userScrubbing = false;
       seekEl.max = 0;
-      updateTimeUI();
-    }else{
-      audioEl.removeAttribute('src');
-      try{ audioEl.load(); }catch(e){}
-      audioBtn.hidden = true;
-      progBox.hidden  = true;
       seekEl.value = 0;
-      seekEl.max = 0;
       timeLbl.textContent = '00:00 / 00:00';
     }
-
-    // 顯示
-    modal.classList.add('is-open');
-    backdrop.classList.add('is-open');
-    document.documentElement.classList.add('is-modal-open');
-    document.body.classList.add('is-modal-open');
-    closeBtn.focus();
 
     // 焦點陷阱 + ESC
     trapHandler = (e)=>{
