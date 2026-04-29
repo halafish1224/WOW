@@ -1,39 +1,45 @@
-<div class="map-container">
+<div class="map-container" id="mapContainer">
   <img id="park-map" src="Map_O.webp" alt="Window on World Theme Park 導覽圖">
 </div>
 
 <style>
-  /* 2. 容器設定：模擬手機螢幕範圍，並隱藏超出畫面的部分 */
+  /* 2. 容器設定：允許手指滑動捲軸 */
   .map-container {
     width: 100%;
-    height: 100vh; /* 佔滿整個手機螢幕高度 */
-    overflow: hidden; 
+    height: 100vh;
+    overflow: auto; /* 關鍵更改：從 hidden 改為 auto，讓地圖可以滑動 */
     position: relative;
-    background-color: #fcebd1; /* 設定與地圖外框相近的底色 */
+    background-color: #fcebd1;
+    scroll-behavior: smooth; /* 啟動原生平滑捲動效果 */
   }
 
-  /* 3. 圖片初始狀態與過渡動畫設定 */
+  /* 3. 圖片初始狀態：直接設定為放大尺寸 */
   #park-map {
-    width: 100%;
-    height: auto;
-    transform: scale(1); /* 預設不放大 */
-    /* 0.8秒平滑過渡，展現拉近感 */
-    transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); 
-  }
-
-  /* 4. 觸發放大的動態 Class */
-  .zoomed-in {
-    transform: scale(2.5) !important; /* 放大 2.5 倍，可依手機實測狀況微調 */
-    transform-origin: 48% 38%; /* 鎖定 Map_O 的「現在位置」精確座標 */
+    width: 250%; /* 決定地圖的預設放大倍率 (250% 約等於之前的 2.5倍) */
+    max-width: none; /* 覆蓋多數框架預設的 100% 限制 */
+    display: block;
   }
 </style>
 
 <script>
-  // 5. 頁面載入後自動觸發
+  // 4. 頁面載入後，自動平滑滑動到指定座標
   window.onload = function() {
-    // 延遲 0.3 秒再開始拉近，讓視覺有緩衝空間
+    const container = document.getElementById('mapContainer');
+    const img = document.getElementById('park-map');
+
+    // 延遲 0.3 秒再開始移動，給手機一點渲染時間
     setTimeout(function() {
-      document.getElementById('park-map').classList.add('zoomed-in');
+      // 計算 Map_O「現在位置」(X: 48%, Y: 38%) 的絕對像素座標
+      // 並扣除一半的螢幕寬/高，讓紅點完美置中於手機畫面
+      const targetX = (img.clientWidth * 0.48) - (container.clientWidth / 2);
+      const targetY = (img.clientHeight * 0.38) - (container.clientHeight / 2);
+
+      // 執行平滑捲動
+      container.scrollTo({
+        left: targetX,
+        top: targetY,
+        behavior: 'smooth'
+      });
     }, 300);
   };
 </script>
