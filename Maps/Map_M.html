@@ -1,39 +1,32 @@
-<div class="map-container">
+<div class="map-container" id="mapContainer">
   <img id="park-map" src="Map_M.webp" alt="Window on World Theme Park 導覽圖">
 </div>
 
 <style>
-  /* 2. 容器設定：模擬手機螢幕範圍，並隱藏超出畫面的部分 */
   .map-container {
     width: 100%;
-    height: 100vh; /* 佔滿整個手機螢幕高度 */
-    overflow: hidden; 
+    height: 100vh;
+    overflow: auto; /* 允許自由滑動 */
     position: relative;
-    background-color: #fcebd1; /* 設定與地圖外框相近的底色 */
+    background-color: #fcebd1;
+    scroll-behavior: smooth;
   }
-
-  /* 3. 圖片初始狀態與過渡動畫設定 */
   #park-map {
-    width: 100%;
-    height: auto;
-    transform: scale(1); /* 預設不放大 */
-    /* 0.8秒平滑過渡，展現拉近感 */
-    transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); 
-  }
-
-  /* 4. 觸發放大的動態 Class */
-  .zoomed-in {
-    transform: scale(2.5) !important; /* 放大 2.5 倍，可依手機實測狀況微調 */
-    transform-origin: 67% 32%; /* 鎖定 Map_M 的「現在位置」精確座標 */
+    width: 250%; /* 地圖放大比例，可自行微調 */
+    max-width: none; 
+    display: block;
   }
 </style>
 
 <script>
-  // 5. 頁面載入後自動觸發
   window.onload = function() {
-    // 延遲 0.3 秒再開始拉近，讓視覺有緩衝空間
+    const container = document.getElementById('mapContainer');
+    const img = document.getElementById('park-map');
     setTimeout(function() {
-      document.getElementById('park-map').classList.add('zoomed-in');
+      // Map_M 專屬座標 (0.67, 0.32)
+      const targetX = (img.clientWidth * 0.67) - (container.clientWidth / 2);
+      const targetY = (img.clientHeight * 0.32) - (container.clientHeight / 2);
+      container.scrollTo({ left: targetX, top: targetY, behavior: 'smooth' });
     }, 300);
   };
 </script>
