@@ -1,32 +1,189 @@
-<div class="map-container" id="mapContainer">
-  <img id="park-map" src="Map_M.webp" alt="Window on World Theme Park 導覽圖">
+<div class="app-layout">
+
+  <div class="map-wrapper">
+    <div class="map-container" id="mapContainer">
+      <img id="park-map" src="Map_M.webp" alt="Window on World Theme Park 導覽圖">
+    </div>
+    
+    <div class="zoom-controls">
+      <button onclick="zoomIn()" aria-label="放大地圖">＋</button>
+      <button onclick="zoomOut()" aria-label="縮小地圖">－</button>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="https://wow.com.tw/tw/about/features.aspx?kind=28" target="_blank">遊世界</a>
+    <a href="https://wow.com.tw/tw/about/features.aspx?kind=29" target="_blank">遊樂園</a>
+    <a href="https://www.facebook.com/wow.themepark" target="_blank">Facebook</a>
+    <a href="https://www.instagram.com/wow.themepark/" target="_blank">IG</a>
+    <a href="https://www.youtube.com/channel/UCotlEpo1eWzJytglZjp7yEQ" target="_blank">YouTube</a>
+  </nav>
+
 </div>
 
 <style>
+  /* --- 版面重置與基礎設定 --- */
+  body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* 禁止全網頁捲動，捲動交給地圖容器 */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  .app-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  .map-wrapper {
+    position: relative;
+    width: 100%;
+    flex: 1; /* 佔滿剩餘空間 */
+    overflow: hidden;
+  }
+
+  /* --- 地圖捲動區域 --- */
   .map-container {
     width: 100%;
-    height: 100vh;
-    overflow: auto; /* 允許自由滑動 */
-    position: relative;
+    height: 100%;
+    overflow: auto;
     background-color: #fcebd1;
     scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* 讓 iOS 滑動更順暢 */
   }
+
   #park-map {
-    width: 250%; /* 地圖放大比例，可自行微調 */
-    max-width: none; 
+    width: 250%; /* 初始倍率 */
+    max-width: none;
     display: block;
+    transform-origin: 0 0;
+  }
+
+  /* --- 浮動縮放按鈕樣式 --- */
+  .zoom-controls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 10;
+  }
+
+  .zoom-controls button {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+  }
+
+  .zoom-controls button:active {
+    background-color: #eee;
+    transform: scale(0.95);
+  }
+
+  /* --- 底部導覽列樣式 --- */
+  .bottom-nav {
+    height: 60px;
+    background-color: #ffffff;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+  }
+
+  .bottom-nav a {
+    text-decoration: none;
+    color: #555;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+    flex: 1;
+    padding: 10px 0;
+  }
+
+  /* 品牌標示色 */
+  .bottom-nav a:active, .bottom-nav a:hover {
+    color: #e60012; 
   }
 </style>
 
 <script>
+  const container = document.getElementById('mapContainer');
+  const img = document.getElementById('park-map');
+
+  // 縮放設定值
+  let currentZoom = 250; 
+  const minZoom = 100; // 縮到最小呈現完整地圖 (100% 寬度)
+  const maxZoom = 450; // 最大放大倍率
+  const step = 50;     // 每次增減幅度
+
+  // --- 1. 初始進入頁面自動定位至 Map_M 現在位置 (67%, 32%) ---
   window.onload = function() {
-    const container = document.getElementById('mapContainer');
-    const img = document.getElementById('park-map');
-    setTimeout(function() {
-      // Map_M 專屬座標 (0.67, 0.32)
-      const targetX = (img.clientWidth * 0.67) - (container.clientWidth / 2);
-      const targetY = (img.clientHeight * 0.32) - (container.clientHeight / 2);
-      container.scrollTo({ left: targetX, top: targetY, behavior: 'smooth' });
+    setTimeout(() => {
+      centerToCoordinates(0.67, 0.32);
     }, 300);
   };
+
+  // --- 2. 縮放邏輯實作 ---
+  function zoomIn() {
+    if (currentZoom < maxZoom) {
+      currentZoom += step;
+      updateMapZoom();
+    }
+  }
+
+  function zoomOut() {
+    if (currentZoom > minZoom) {
+      currentZoom -= step;
+      updateMapZoom();
+    }
+  }
+
+  function updateMapZoom() {
+    // 記錄縮放前的中心比例，以便縮放後維持視角
+    const centerX = (container.scrollLeft + container.clientWidth / 2) / img.clientWidth;
+    const centerY = (container.scrollTop + container.clientHeight / 2) / img.clientHeight;
+
+    // 暫時關閉平滑效果以獲得精準座標計算
+    container.style.scrollBehavior = 'auto';
+    
+    img.style.width = currentZoom + '%';
+
+    // 重新計算並捲動至新座標
+    const newX = (img.clientWidth * centerX) - (container.clientWidth / 2);
+    const newY = (img.clientHeight * centerY) - (container.clientHeight / 2);
+    
+    container.scrollTo(newX, newY);
+    
+    // 恢復平滑捲動
+    setTimeout(() => {
+      container.style.scrollBehavior = 'smooth';
+    }, 50);
+  }
+
+  // 自動置中函數
+  function centerToCoordinates(pctX, pctY) {
+    const targetX = (img.clientWidth * pctX) - (container.clientWidth / 2);
+    const targetY = (img.clientHeight * pctY) - (container.clientHeight / 2);
+    container.scrollTo({
+      left: targetX,
+      top: targetY,
+      behavior: 'smooth'
+    });
+  }
 </script>
