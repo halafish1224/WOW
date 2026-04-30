@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Window on World Theme Park - 入園廣場</title>
+  <style>
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: "Microsoft JhengHei", sans-serif; }
+    .app-layout { display: flex; flex-direction: column; height: 100vh; }
+    .map-wrapper { position: relative; width: 100%; flex: 1; overflow: hidden; }
+    .map-container { width: 100%; height: 100%; overflow: auto; background-color: #fcebd1; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+    #park-map { width: 250%; max-width: none; display: block; transform-origin: 0 0; }
+    
+    /* 巨型放大縮小按鈕 (長輩友善設計) */
+    .zoom-controls { position: absolute; bottom: 30px; right: 20px; display: flex; flex-direction: column; gap: 16px; z-index: 10; }
+    .zoom-controls button {
+      width: 80px; height: 80px; border-radius: 50%; border: none; background-color: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3); font-size: 44px; font-weight: 900; color: #222; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; outline: none; -webkit-tap-highlight-color: transparent;
+    }
+    .zoom-controls button:active { background-color: #e0e0e0; transform: scale(0.95); }
+    
+    /* 現在位置提示列 (導覽列上方) */
+    .location-bar { height: 50px; background-color: #f8f8f8; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 900; color: #222; border-top: 1px solid #ddd; }
+    .location-bar span { color: #e60012; margin-right: 8px; }
+
+    /* 高反差大字體導覽列 */
+    .bottom-nav { height: 80px; background-color: #ffffff; border-top: 2px solid #ddd; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -4px 10px rgba(0,0,0,0.1); z-index: 100; }
+    .bottom-nav a { text-decoration: none; color: #1a1a1a; font-size: 20px; font-weight: 900; text-align: center; flex: 1; padding: 15px 0; }
+    .bottom-nav a:active { color: #e60012; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div class="map-wrapper">
+    <div class="map-container" id="mapContainer">
+      <img id="park-map" src="http://wow.itigre.com/Maps/1777538353464.jpg" alt="Window on World Theme Park 導覽圖">
+    </div>
+    <div class="zoom-controls">
+      <button onclick="zoomIn()">+</button>
+      <button onclick="zoomOut()">-</button>
+    </div>
+  </div>
+  <div class="location-bar"><span>現在位置:</span>入園廣場</div>
+  <nav class="bottom-nav">
+    <a href="https://wow.com.tw/tw/about/features.aspx?kind=28" target="_blank">遊世界</a>
+    <a href="https://wow.com.tw/tw/about/features.aspx?kind=29" target="_blank">遊樂園</a>
+    <a href="https://www.facebook.com/wow.themepark" target="_blank">Facebook</a>
+    <a href="https://www.instagram.com/wow.themepark/" target="_blank">IG</a>
+    <a href="https://www.youtube.com/channel/UCotlEpo1eWzJytglZjp7yEQ" target="_blank">YouTube</a>
+  </nav>
+</div>
+
+<script>
+  const container = document.getElementById('mapContainer');
+  const img = document.getElementById('park-map');
+  
+  let currentZoom = 250; // 初始放大倍率 250%
+  const minZoom = 100;   // 縮小下限
+  const maxZoom = 450;   // 放大上限
+  const step = 50;       // 縮放步長
+
+  // --- 1. 初始載入與自動定位 ---
+  window.onload = function() {
+    // 延遲 0.3 秒，確保圖片初步渲染後計算座標
+    setTimeout(() => {
+      // 為入園廣場設定初始座標 (通常在下方入口，設定 X: 50%, Y: 85%)
+      centerToCoordinates(0.50, 0.85);
+    }, 300);
+  };
+
+  // --- 2. 縮放功能核心 ---
+  function zoomIn() {
+    if (currentZoom < maxZoom) {
+      currentZoom += step;
+      updateMapZoom();
+    }
+  }
+
+  function zoomOut() {
+    if (currentZoom > minZoom) {
+      currentZoom -= step;
+      updateMapZoom();
+    }
+  }
+
+  function updateMapZoom() {
+    // 記錄縮放前的螢幕中心相對比例，以便縮放後保持視角
+    const centerX = (container.scrollLeft + container.clientWidth / 2) / img.clientWidth;
+    const centerY = (container.scrollTop + container.clientHeight / 2) / img.clientHeight;
+
+    // 暫時關閉smooth效果以獲得精準座標計算
+    container.style.scrollBehavior = 'auto';
+    
+    // 更新圖片寬度
+    img.style.width = currentZoom + '%';
+
+    // 重新計算新的捲動座標
+    const newX = (img.clientWidth * centerX) - (container.clientWidth / 2);
+    const newY = (img.clientHeight * centerY) - (container.clientHeight / 2);
+    
+    // 瞬間捲動到新位置
+    container.scrollTo(newX, newY);
+    
+    // 恢復平滑捲動屬性
+    setTimeout(() => {
+      container.style.scrollBehavior = 'smooth';
+    }, 50);
+  }
+
+  // --- 3. 自動置中輔助函數 (pctX, pctY 為 0.0~1.0 比例) ---
+  function centerToCoordinates(pctX, pctY) {
+    // 計算絕對像素座標並扣除半個螢幕
+    const targetX = (img.clientWidth * pctX) - (container.clientWidth / 2);
+    const targetY = (img.clientHeight * pctY) - (container.clientHeight / 2);
+    
+    container.scrollTo({
+      left: targetX,
+      top: targetY,
+      behavior: 'smooth'
+    });
+  }
+</script>
+</body>
+</html>
