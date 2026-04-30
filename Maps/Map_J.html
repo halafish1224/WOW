@@ -23,27 +23,11 @@
   .map-wrapper { position: relative; width: 100%; flex: 1; overflow: hidden; }
   .map-container { width: 100%; height: 100%; overflow: auto; background-color: #fcebd1; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
   #park-map { width: 250%; max-width: none; display: block; transform-origin: 0 0; }
-  
-  /* --- 長輩友善設計：縮小/放大按鈕 --- */
   .zoom-controls { position: absolute; bottom: 30px; right: 20px; display: flex; flex-direction: column; gap: 16px; z-index: 10; }
-  .zoom-controls button {
-    width: 80px; height: 80px; /* 將近原版的2倍大 */
-    border-radius: 50%; border: none; background-color: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.3);
-    font-size: 40px; font-weight: bold; color: #222; cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent;
-  }
+  .zoom-controls button { width: 80px; height: 80px; border-radius: 50%; border: none; background-color: rgba(255, 255, 255, 0.95); box-shadow: 0 6px 16px rgba(0,0,0,0.3); font-size: 40px; font-weight: bold; color: #222; cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent; }
   .zoom-controls button:active { background-color: #e0e0e0; transform: scale(0.95); }
-
-  /* --- 長輩友善設計：底部導覽列 --- */
-  .bottom-nav {
-    height: 80px; /* 加高點擊範圍 */
-    background-color: #ffffff; border-top: 2px solid #ddd; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -4px 10px rgba(0,0,0,0.08); z-index: 100;
-  }
-  .bottom-nav a {
-    text-decoration: none; color: #222; /* 高對比深灰色 */
-    font-size: 20px; font-weight: 900; /* 大字體與極粗體 */
-    text-align: center; flex: 1; padding: 15px 0;
-  }
+  .bottom-nav { height: 80px; background-color: #ffffff; border-top: 2px solid #ddd; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -4px 10px rgba(0,0,0,0.08); z-index: 100; }
+  .bottom-nav a { text-decoration: none; color: #222; font-size: 20px; font-weight: 900; text-align: center; flex: 1; padding: 15px 0; }
   .bottom-nav a:active, .bottom-nav a:hover { color: #e60012; }
 </style>
 
